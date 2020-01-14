@@ -232,7 +232,8 @@ app.get('/api/player', (req, res) => {
 				});
 				computedData.mods = mods;
 				computedData.averageCombo = computedData.averageCombo / 100;
-				computedData.other = data.length - computedData.chokes +  computedData.FCs;
+				computedData.other = data.length - (computedData.chokes +  computedData.FCs);
+				console.log(data.length)
 				playerData[0].computedData = computedData;
 				playerData[0].colours = coloursExtracted;
 				res.json(playerData[0]);
