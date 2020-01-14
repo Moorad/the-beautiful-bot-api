@@ -5,7 +5,8 @@ const app = express();
 const colour = require('./colours');
 const pp = require('./pp');
 const {
-	exec
+	exec,
+	execSync 
 } = require('child_process');
 const fs = require('fs');
 const stream = require('stream')
@@ -29,7 +30,11 @@ app.get('/api/user', (req, res) => {
 	var osuKey = req.query.osukey;
 	var user = req.query.username;
 	request(`https://osu.ppy.sh/api/get_user?k=${osuKey}&u=${user}`, (err, response, body) => {
+		if (JSON.parse(body).user_id) {
 		res.json(JSON.parse(body));
+		} else {
+			res.json({error:'Invalid Username'})
+		}
 	});
 
 });
@@ -40,6 +45,11 @@ app.get('/api/beatmap', (req, res) => {
 
 	request(`https://osu.ppy.sh/api/get_beatmaps?k=${osuKey}&s=${beatmapsetId}`, (err, response, body) => {
 		var data = JSON.parse(body);
+		console.log(body)
+		if (data.length == 0) {
+			res.json({error:'Invalid Beatmap URL'});
+			return;
+		}
 		exec(`curl -s https://osu.ppy.sh/osu/${JSON.parse(body)[0].beatmap_id} | node pp.js`, (err, stdout, stderr) => {
 
 			colours(`https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover@2x.jpg`, (coloursExtracted) => {
@@ -81,9 +91,8 @@ app.get('/api/beatmap', (req, res) => {
 });
 
 function colours(link, callback) {
-	;
 	colour.getColours(link, (colours) => {
-		colours = colour.toReadable(colour.toRGB(colours.background), colour.toRGB('#141927'));
+		colours = colour.toReadable(colour.toRGB(colours.foreground), colour.toRGB('#141927'));
 		colours.foreground = colour.toHex(colours.foreground);
 		colours.background = colour.toHex(colours.background);
 		callback(colours);
@@ -187,6 +196,10 @@ app.get('/api/player', (req, res) => {
 
 	request(`https://osu.ppy.sh/api/get_user?k=${osuKey}&u=${user}`, (err, response, body) => {
 		var playerData = JSON.parse(body);
+		if (playerData.length == 0) {
+			res.json({error:'Invalid Username'});
+			return;
+		}
 		request(`https://osu.ppy.sh/api/get_user_best?k=${osuKey}&u=${user}&limit=100`, (err, response, body) => {
 			colours(`https://a.ppy.sh/${playerData[0].user_id}`, (coloursExtracted) => {
 				var data = JSON.parse(body);

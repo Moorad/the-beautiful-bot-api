@@ -32,7 +32,7 @@ function getColours(url, options, callback) {
 		encoding: null
 	}, (err, res, body) => {
 		var dominant = colorThief.getColor(body);
-		Vibrant.from(body).maxColorCount(64).getPalette(async function (err, palette) {
+		Vibrant.from(body).maxColorCount(16).getPalette(async function (err, palette) {
 
 
 			var backgroundColour = toHex(dominant);
