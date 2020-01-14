@@ -221,9 +221,6 @@ app.get('/api/player', (req, res) => {
 						computedData.FCs++;
 					}
 
-					if (data[i].rank == 'A' || data[i].rank == 'B') {
-						computedData.other++;
-					}
 					computedData.averageCombo += parseInt(data[i].maxcombo);
 					computedData.unweightedPP += parseInt(data[i].pp);
 					computedData.mods.push(getMods(parseInt(data[i].enabled_mods)));
@@ -235,7 +232,7 @@ app.get('/api/player', (req, res) => {
 				});
 				computedData.mods = mods;
 				computedData.averageCombo = computedData.averageCombo / 100;
-				computedData.other -= computedData.chokes;
+				computedData.other = data.length - computedData.chokes +  computedData.FCs;
 				playerData[0].computedData = computedData;
 				playerData[0].colours = coloursExtracted;
 				res.json(playerData[0]);
