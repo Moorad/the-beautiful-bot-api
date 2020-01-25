@@ -26,6 +26,10 @@ app.use(cors())
 // 	})
 // })
 
+setInterval(function () {
+	request.get(process.env.SERVER+'/ping');
+}, 300000);
+
 app.get('/api/user', (req, res) => {
 	var osuKey = req.query.osukey;
 	var user = req.query.username;
@@ -37,6 +41,11 @@ app.get('/api/user', (req, res) => {
 		}
 	});
 
+});
+
+app.get('/ping', (req, res) => {
+	console.log('PING')
+	res.send('pong');
 });
 
 app.get('/api/beatmap', (req, res) => {
@@ -301,6 +310,11 @@ app.get('/api/flag', (req, res) => {
 			}
 		})
 	passThrough.pipe(res);
+});
+
+app.get('/s/:beatmapsetId', (req, res) => {
+	var id = req.params.beatmapsetId;
+	res.redirect(`osu://s/${id}`);
 });
 
 function timeSince(date) {
